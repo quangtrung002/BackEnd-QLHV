@@ -1,0 +1,1 @@
+export const AUTH_VERSION_DIV = 300_000_000;

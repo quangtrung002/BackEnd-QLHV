@@ -1,0 +1,35 @@
+import { UserEntity } from 'src/app/user/entities/user.entity';
+import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm';
+
+@Entity('student_profiles')
+export class StudentProfileEntity {
+  @PrimaryColumn({ name: 'user_id' })
+  userId: number;
+
+  @Column({ unique: true })
+  code: string;
+
+  @Column({type : 'date', nullable : true})
+  dob: Date;
+
+  @Column({ type : 'text', nullable : true })
+  address: string;
+
+  @Column({name : 'father_name', nullable : true})
+  fatherName: string;
+
+  @Column({name : 'mother_name', nullable : true})
+  motherName: string;
+
+  @Column({ name : "father_phone", nullable : true })
+  fatherPhone: string;
+
+  @Column({ name : "mother_phone", nullable : true })
+  motherPhone: string;
+
+  @Column()
+  referrer : string;
+
+  @OneToOne( () => UserEntity, (user) => user.studentProfile, { onDelete: 'CASCADE' })
+  user: UserEntity;
+}

@@ -1,0 +1,1 @@
+export const dateUTCISOString = (date: Date = new Date()): string => new Date(date.toUTCString()).toISOString();
