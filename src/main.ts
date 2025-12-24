@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
 import { AllExceptionFilter } from './base/exceptions/all-exception-filter';
 import { InitSwagger } from './base/swagger/swagger.setup';
 import { ResponesTransformInterceptor } from './base/middleware/response.interceptor';
+import { exceptionFactory, ValidationPipe } from './base/middleware/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,22 +18,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({
-      disableErrorMessages: true,
-      skipMissingProperties: false,
-      transform: true,
-      exceptionFactory: (errors) => {
-        return new HttpException(
-          {
-            success: false,
-            msg: Object.values(errors[0].constraints)[0],
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      },
+      exceptionFactory,
+      stopAtFirstError : true,
       whitelist: true,
+      transform : true,
     }),
   );
-  app.useGlobalInterceptors(new ResponesTransformInterceptor())
+  app.useGlobalInterceptors(new ResponesTransformInterceptor());
   app.useGlobalFilters(new AllExceptionFilter());
 
   InitSwagger(app);

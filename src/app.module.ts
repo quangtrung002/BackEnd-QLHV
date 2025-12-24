@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -13,6 +13,7 @@ import { SeederModule } from './base/migrations/seed/seeder.module';
 import { SettingsModule } from './app/setting/setting.module';
 import { StudentModule } from './app/student-profile/student.module';
 import { TeacherModule } from './app/teacher/teacher.module';
+import { ValidationPipe } from './base/middleware/validation.pipe';
 
 @Module({
   imports: [
