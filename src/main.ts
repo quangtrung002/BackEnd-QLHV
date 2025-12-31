@@ -21,7 +21,6 @@ async function bootstrap() {
       exceptionFactory,
       stopAtFirstError : true,
       whitelist: true,
-      transform : true,
     }),
   );
   app.useGlobalInterceptors(new ResponesTransformInterceptor());

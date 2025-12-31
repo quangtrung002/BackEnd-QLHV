@@ -46,7 +46,7 @@ export class AdminUserController {
 
   @Get()
   @ApiPaginatedResponse(UserEntity)
-  @ApiListOperation()
+  @ApiListOperation({ summary : "Lấy danh sách student or teacher"})
   async index(
     @UserAuth() user: User,
     @Query() query: AdminQueryUserDto,

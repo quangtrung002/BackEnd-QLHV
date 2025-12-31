@@ -7,6 +7,9 @@ import { ScoreEntity } from './entities/score.entity';
 import { StudentProfileEntity } from './entities/student-profile.entity';
 import { TrialFeedbackEntity } from './entities/trial-feedback.entity';
 import { WeeklyFeedbackEntity } from './entities/weekly-feedback.entity';
+import { AdminStudentController } from './controllers/student.controller';
+import { AdminStudentService } from './services/student.service';
+import { UserEntity } from '../user/entities/user.entity';
 
 @Module({
   imports: [
@@ -18,10 +21,11 @@ import { WeeklyFeedbackEntity } from './entities/weekly-feedback.entity';
       StudentProfileEntity,
       TrialFeedbackEntity,
       WeeklyFeedbackEntity,
+      UserEntity
     ]),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AdminStudentController],
+  providers: [AdminStudentService],
   exports: [],
 })
 export class StudentModule {}

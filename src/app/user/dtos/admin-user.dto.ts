@@ -4,10 +4,13 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsPositive,
+  IsString,
 } from 'class-validator';
 import { Status } from 'src/base/utils/status';
 import { factoryQuerySpecificationDto } from 'src/base/dtos/query-specification.dto';
+import { Role } from 'src/base/authorization/role/role.enum';
 
 export class AdminLockUserDto {
   @ApiProperty({ example: 2 })
@@ -22,10 +25,32 @@ export class AdminLockUserDto {
   userId: number[];
 }
 
-export class AdminQueryUserDto extends factoryQuerySpecificationDto({
-  searchFields: ['username'],
-  filterExample: {
-    username: 'Trung bin',
-    email: 'admin@gmail.com',
+class AdminUserFilterDto {
+  @IsOptional()
+  @IsString()
+  role: string;
+
+  @IsOptional()
+  @IsString()
+  'studentProfile.active': string;
+
+  @IsOptional()
+  @IsString()
+  'studentProfile.grade': string;
+}
+
+export class AdminQueryUserDto extends factoryQuerySpecificationDto<AdminUserFilterDto>(
+  {
+    searchFields: [
+      'username',
+      'studentProfile.fatherName',
+      'studentProfile.motherName',
+      'studentProfile.code',
+      'email'
+    ],
+    filterCls: AdminUserFilterDto,
+    filterExample: {
+      role: Role.Teacher,
+    },
   },
-}) {}
+) {}

@@ -58,16 +58,17 @@ export class ListService<T extends BaseEntity> extends GenericService<T> {
     return query;
   }
 
-  actionPostList(currentUser : User, records : T[], params){
+  actionPostList(currentUser: User, records: T[], params) {
     return records;
   }
 
-  prepareFindAllQuery(currentUser : User, params): SelectQueryBuilder<T> {
+  prepareFindAllQuery(currentUser: User, params): SelectQueryBuilder<T> {
     let query = this.repository.createQueryBuilder(this.aliasName);
     query = this.addSelect(query);
     query = this.actionPreList(query, currentUser);
     query = this.setOrderBy(query, params);
     query = this.setSearch(query, params);
+    query = this.setFilter(query, params)
     query = this._filterByUser(currentUser, query);
     query = this.setCache(query);
     return query;
@@ -132,4 +133,3 @@ export class ListService<T extends BaseEntity> extends GenericService<T> {
     };
   }
 }
- 

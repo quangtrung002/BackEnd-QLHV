@@ -1,7 +1,7 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/base/entities/common.entity';
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AUTH_VERSION_DIV } from '../constants/user.constants';
 import { config } from 'src/configs/config.service';

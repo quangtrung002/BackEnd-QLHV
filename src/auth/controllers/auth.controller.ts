@@ -92,7 +92,6 @@ export class AuthController {
   @Post('auth/logout')
   @ApiOperation({ summary: 'Đăng xuất' })
   async logout(@UserAuth() user): Promise<any> {
-    console.log(user);
     return await this.authService.logout(user);
   }
 }
