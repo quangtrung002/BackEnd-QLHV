@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -7,6 +7,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -127,4 +128,55 @@ export class UpdateStudentDto {
   @ValidateNested()
   @Type(() => UpdateStudentProfileDto)
   studentProfile?: UpdateStudentProfileDto;
+}
+export class FilterScoreStudentDto {
+    @ApiPropertyOptional({
+    description: 'Học kỳ / niên khóa',
+    example: '1_2025_2026',
+  })
+  @IsOptional()
+  @IsString()
+  @Transform(({ value }) => value?.trim())
+  term?: string;
+
+  @ApiPropertyOptional({
+    description: 'Khối lớp',
+    example: 'Lớp 9',
+  })
+  @IsOptional()
+  @IsString()
+  @Transform(({ value }) => value?.trim())
+  grade?: string;  
+}
+
+export class UpdateScoreStudentDto {
+  @ApiPropertyOptional({
+    description: 'Điểm giữa kỳ',
+    example: 7.5,
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  mid_score?: number;
+
+  @ApiPropertyOptional({
+    description: 'Điểm GITA',
+    example: 8,
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  gita_score?: number;
+
+  @ApiPropertyOptional({
+    description: 'Điểm cuối kỳ',
+    example: 9,
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  final_score?: number;
 }

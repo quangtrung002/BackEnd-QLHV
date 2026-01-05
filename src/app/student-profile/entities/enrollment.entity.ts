@@ -28,16 +28,8 @@ export class EnrollmentEntity extends BaseEntity {
   @Column({ name: 'assigned_teacher_id', nullable: true })
   assignedTeacherId: number;
 
-  @Column()
-  grade: string;
-
-  @Column({
-    name: 'status_student',
-    type: 'enum',
-    enum: StudentStatus,
-    default: StudentStatus.OFFICIAL,
-  })
-  statusStudent: StudentStatus;
+  @Column({nullable : true})
+  grade : string;
 
   @ManyToOne(() => UserEntity, (user) => user.enrollments)
   @JoinColumn({ name: 'student_id' })
