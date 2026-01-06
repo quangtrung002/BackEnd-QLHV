@@ -10,6 +10,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { factoryQuerySpecificationDto } from 'src/base/dtos/query-specification.dto';
 
 export class CreateStudentProfileDto {
   @ApiProperty({ example: 'STU001' })
@@ -106,7 +107,6 @@ export class CreateStudentDto {
 
 class UpdateStudentProfileDto extends PartialType(CreateStudentProfileDto) {}
 
-
 export class UpdateStudentDto {
   @ApiPropertyOptional()
   @IsOptional()
@@ -123,14 +123,16 @@ export class UpdateStudentDto {
   @IsEmail()
   email?: string;
 
-  @ApiPropertyOptional( )
+  @ApiPropertyOptional()
   @IsOptional()
   @ValidateNested()
   @Type(() => UpdateStudentProfileDto)
   studentProfile?: UpdateStudentProfileDto;
 }
+
+//DTO điểm của học sinh 
 export class FilterScoreStudentDto {
-    @ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'Học kỳ / niên khóa',
     example: '1_2025_2026',
   })
@@ -146,7 +148,7 @@ export class FilterScoreStudentDto {
   @IsOptional()
   @IsString()
   @Transform(({ value }) => value?.trim())
-  grade?: string;  
+  grade?: string;
 }
 
 export class UpdateScoreStudentDto {
@@ -180,3 +182,45 @@ export class UpdateScoreStudentDto {
   @Min(0)
   final_score?: number;
 }
+
+//DTO ngày nghỉ của học sinh
+export class FilterLeaveRequestDto {
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsString()
+  endDate?: string;
+}
+
+export class QueryLeaveRequestDto extends factoryQuerySpecificationDto<FilterLeaveRequestDto>(
+  {
+    searchFields: [
+      'student.username',
+      // 'student.studentProfile.code',
+    ],
+    filterCls: FilterLeaveRequestDto,
+    filterExample: {
+      startDate: '2025-01-01',
+      endDate: '2025-01-31',
+    },
+  },
+) {}
+
+export class CreateLeaveRequestDto {
+  @ApiProperty({ example: '1', description: 'ID học sinh' })
+  @IsNotEmpty()
+  @IsNumber()
+  userId: number;
+
+  @ApiProperty({ example: '2025-01-15', description: 'Ngày xin nghỉ học' })
+  @IsNotEmpty()
+  @IsDateString()
+  date: string;
+
+  @ApiProperty({ example: 'Ốm đau', description: 'Lý do xin nghỉ học' })
+  @IsNotEmpty()
+  @IsString()
+  reason: string;
+} 

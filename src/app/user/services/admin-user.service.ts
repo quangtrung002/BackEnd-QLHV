@@ -31,6 +31,7 @@ export class AdminUserService extends CommonService<UserEntity> {
   ): SelectQueryBuilder<UserEntity> {
     queryBuilder.leftJoinAndSelect(this.aliasName + '.shifts', 'shifts');
     queryBuilder.leftJoinAndSelect(this.aliasName + ".studentProfile", "studentProfile");
+    queryBuilder.leftJoinAndSelect(this.aliasName + ".enrollments", "enrollments");
     queryBuilder.andWhere(this.aliasName + ".status = :status", { status: Status.ACTIVE });
     return queryBuilder;
   }
