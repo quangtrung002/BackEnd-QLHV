@@ -31,6 +31,9 @@ export class EnrollmentEntity extends BaseEntity {
   @Column({nullable : true})
   grade : string;
 
+  @Column({nullable : true, enum : ['CT', 'TN']})
+  studentStatus : string
+
   @ManyToOne(() => UserEntity, (user) => user.enrollments)
   @JoinColumn({ name: 'student_id' })
   student: UserEntity;

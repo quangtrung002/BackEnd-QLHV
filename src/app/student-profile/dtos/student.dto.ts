@@ -3,10 +3,12 @@ import { Transform, Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -130,7 +132,7 @@ export class UpdateStudentDto {
   studentProfile?: UpdateStudentProfileDto;
 }
 
-//DTO điểm của học sinh 
+//DTO điểm của học sinh
 export class FilterScoreStudentDto {
   @ApiPropertyOptional({
     description: 'Học kỳ / niên khóa',
@@ -196,10 +198,7 @@ export class FilterLeaveRequestDto {
 
 export class QueryLeaveRequestDto extends factoryQuerySpecificationDto<FilterLeaveRequestDto>(
   {
-    searchFields: [
-      'student.username',
-      // 'student.studentProfile.code',
-    ],
+    searchFields: ['student.username', 'profile.code'],
     filterCls: FilterLeaveRequestDto,
     filterExample: {
       startDate: '2025-01-01',
@@ -223,4 +222,35 @@ export class CreateLeaveRequestDto {
   @IsNotEmpty()
   @IsString()
   reason: string;
-} 
+}
+
+// DTO học sinh học trải nghiệm
+export class FilterStudentTrialDto {}
+
+export class QueryStudentTrialDto extends factoryQuerySpecificationDto<FilterStudentTrialDto>(
+  {
+    searchFields: ['profile.code', 'student.username'],
+  },
+) {}
+
+export class CreateFeedbackTrialDto {
+  @ApiProperty({example : 4})
+  @IsInt()
+  @IsNotEmpty()
+  enrollmentId: number;
+
+  @ApiProperty({example : 1})
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  sessionNumber: number; 
+
+  @ApiProperty({example : "2026-01-06"})
+  @IsDateString()
+  learningDate: string; 
+
+  @ApiProperty({example : "om lanh rat nang"})
+  @IsString()
+  @IsNotEmpty()
+  comment : string
+}

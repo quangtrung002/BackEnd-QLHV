@@ -15,10 +15,12 @@ import { AdminStudentService } from '../services/student.service';
 import { UserAuth } from 'src/auth/decorator/jwt.decorator';
 import { User } from 'src/auth/interfaces/user.class';
 import {
+  CreateFeedbackTrialDto,
   CreateLeaveRequestDto,
   CreateStudentDto,
   FilterScoreStudentDto,
   QueryLeaveRequestDto,
+  QueryStudentTrialDto,
   UpdateScoreStudentDto,
   UpdateStudentDto,
 } from '../dtos/student.dto';
@@ -68,7 +70,10 @@ export class AdminStudentController {
 
   @Get('/leave-requests')
   @ApiOperation({ summary: 'Lấy danh sách đơn xin nghỉ học của học sinh' })
-  async getLeaveRequests(@UserAuth() user: User, @Query() query: QueryLeaveRequestDto) {
+  async getLeaveRequests(
+    @UserAuth() user: User,
+    @Query() query: QueryLeaveRequestDto,
+  ) {
     return await this.adminStudentService.getLeaveRequests(user, query);
   }
 
@@ -94,5 +99,33 @@ export class AdminStudentController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return await this.adminStudentService.deleteLeaveRequest(user, id);
+  }
+
+  @Get('list-trial')
+  @ApiOperation({
+    summary: 'Lấy danh sách học sinh học trải nghiệm và nhận xét của giáo viên',
+  })
+  async getListStudentTrial(
+    @UserAuth() user: User,
+    @Query() query: QueryStudentTrialDto,
+  ) {
+    return await this.adminStudentService.getListStudentTrial(user, query);
+  }
+
+  @Post('trial-feedback')
+  @ApiOperation({ summary : "Tạo nhận xét học sinh học trải nghiệm"})
+  async createTrialFeedback(
+    @UserAuth() user : User,
+    @Body() body : CreateFeedbackTrialDto
+  ) {
+    return await this.adminStudentService.createFeedbackTrial(user, body)
+  }
+
+  @Put('trial-student/:enrollmentId')
+  @ApiOperation({summary : "Chuyển học viên trải nghiệm sang chính thức "})
+  async updateTrialStudent(@UserAuth() user : User, @Param('enrollmentId', ParseIntPipe) enrollmentId : number){
+    return await this.adminStudentService.updateTrialStudent(user, enrollmentId)
+
+
   }
 }

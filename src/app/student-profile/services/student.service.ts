@@ -4,13 +4,16 @@ import { User } from 'src/auth/interfaces/user.class';
 import { CommonService } from 'src/base/services/common.service';
 import { Brackets, DataSource, In, Repository } from 'typeorm';
 import {
+  CreateFeedbackTrialDto,
   CreateLeaveRequestDto,
   CreateStudentDto,
   QueryLeaveRequestDto,
+  QueryStudentTrialDto,
   UpdateScoreStudentDto,
   UpdateStudentDto,
 } from '../dtos/student.dto';
 import {
+  BadRequestException,
   ConflictException,
   NotFoundException,
 } from 'src/base/exceptions/custom.exception';
@@ -21,6 +24,7 @@ import { EnrollmentEntity } from '../entities/enrollment.entity';
 import { LeaveRequestEntity } from '../entities/leave-request.entity';
 import { LeaveType } from 'src/base/utils/leave-type.enum';
 import { Status } from 'src/base/utils/status';
+import { TrialFeedbackEntity } from '../entities/trial-feedback.entity';
 
 export class AdminStudentService extends CommonService<UserEntity> {
   constructor(
@@ -37,6 +41,8 @@ export class AdminStudentService extends CommonService<UserEntity> {
     protected readonly repoEnrollment: Repository<EnrollmentEntity>,
     @InjectRepository(LeaveRequestEntity)
     protected readonly repoLeaveRequest: Repository<LeaveRequestEntity>,
+    @InjectRepository(TrialFeedbackEntity)
+    protected readonly repoTrialFeebback: Repository<TrialFeedbackEntity>,
   ) {
     super(repoUser);
   }
@@ -226,6 +232,7 @@ export class AdminStudentService extends CommonService<UserEntity> {
         'enrollments.academicYearId = :yearId',
         { yearId: currentYear.id },
       )
+      .leftJoin('student.studentProfile', 'profile')
       .select([
         'lr.id AS id',
         'lr.date AS date',
@@ -296,6 +303,96 @@ export class AdminStudentService extends CommonService<UserEntity> {
       updatedById: user.id,
     });
     await this.repoLeaveRequest.save(newRecord);
+    return;
+  }
+
+  async getListStudentTrial(user: User, params: QueryStudentTrialDto) {
+    const currentYear = await this.repoAcademicYear.findOne({
+      where: { isCurrent: true },
+    });
+
+    if (!currentYear) {
+      throw new NotFoundException('Chưa cấu hình năm học hiện tại');
+    }
+
+    let query = this.repoEnrollment
+      .createQueryBuilder('enrollment')
+      .leftJoinAndSelect('enrollment.student', 'student')
+      .leftJoinAndSelect('enrollment.trialFeedbacks', 'feedback')
+      .leftJoinAndSelect('enrollment.assignedTeacher', 'teacher')
+      .leftJoinAndSelect('student.studentProfile', 'profile')
+      .where('enrollment.studentStatus = :status', { status: 'TN' })
+      .andWhere('enrollment.academicYearId = :yearId', {
+        yearId: currentYear.id,
+      })
+      .orderBy('enrollment.createdAt', 'DESC')
+      .addOrderBy('feedback.sessionNumber', 'ASC');
+
+    query = this.setSearch(query, params);
+
+    const data = await query.getMany();
+
+    return data.map((item) => ({
+      enrollmentId: item.id,
+      studentId: item.student.id,
+      username: item.student.username,
+      grade: item.grade || 'Chưa xếp lớp',
+      code: item.student.studentProfile?.code,
+      assignedTeacher: item.assignedTeacher?.username || 'Chưa phân công',
+      feedbacks: item.trialFeedbacks.map((fb) => ({
+        id: fb.id,
+        session: fb.sessionNumber,
+        comment: fb.comment,
+        date: fb.learningDate,
+      })),
+    }));
+  }
+
+  async createFeedbackTrial(user: User, body: CreateFeedbackTrialDto) {
+    const { enrollmentId, learningDate, comment, sessionNumber } = body;
+    const enrollment = await this.repoEnrollment.findOne({
+      where: { id: enrollmentId },
+    });
+    if (!enrollment)
+      throw new NotFoundException('Hồ sơ học sinh không tồn tại!');
+    if (enrollment.studentStatus !== 'TN')
+      throw new BadRequestException('Học sinh này không phải trải nghiệm!');
+
+    const existFb = await this.repoTrialFeebback.findOne({
+      where: {
+        enrollmentId,
+        sessionNumber,
+      },
+    });
+    if (existFb) {
+      existFb.comment = comment;
+      existFb.updatedById = user.id;
+      await this.repoTrialFeebback.save(existFb);
+      return;
+    }
+    const newFb = this.repoTrialFeebback.create({
+      enrollmentId,
+      learningDate,
+      comment,
+      sessionNumber,
+      createdById: user.id,
+    });
+    await this.repoTrialFeebback.save(newFb);
+    return;
+  }
+
+  async updateTrialStudent(user: User, enrollmentId: number) {
+    const enrollment = await this.repoEnrollment.findOne({
+      where: { id: enrollmentId },
+    });
+    if (!enrollment)
+      throw new NotFoundException('Không tìm thấy thông tin học viên!');
+
+    this.repoEnrollment.merge(enrollment, {
+      studentStatus: 'CT',
+      updatedById: user.id,
+    });
+    await this.repoEnrollment.save(enrollment);
     return;
   }
 
