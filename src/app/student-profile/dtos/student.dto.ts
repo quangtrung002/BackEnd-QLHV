@@ -6,6 +6,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   Max,
@@ -14,16 +15,32 @@ import {
 } from 'class-validator';
 import { factoryQuerySpecificationDto } from 'src/base/dtos/query-specification.dto';
 
-export class CreateStudentProfileDto {
+class FilterStudentDto {
+  @IsOptional()
+  @IsString()
+  'grade': string;
+
+  @IsOptional()
+  @IsString()
+  'studentStatus': string;
+}
+
+export class QueryStudentDto extends factoryQuerySpecificationDto<FilterStudentDto>(
+  {
+    searchFields: ['student.username', 'profile.code'],
+    filterCls: FilterStudentDto,
+    filterExample: {
+      grade: 'Lớp 7',
+      studentStatus: 'TN',
+    },
+  },
+) {}
+
+class CreateProfileDto {
   @ApiProperty({ example: 'STU001' })
   @IsNotEmpty()
   @IsString()
   code: string;
-
-  @ApiPropertyOptional({ example: 'Lớp 6' })
-  @IsOptional()
-  @IsString()
-  grade?: string;
 
   @ApiPropertyOptional({ example: 'ABC Secondary School' })
   @IsOptional()
@@ -39,11 +56,6 @@ export class CreateStudentProfileDto {
   @IsOptional()
   @IsDateString()
   dob?: Date;
-
-  @ApiPropertyOptional({ example: 'TN', description: 'TN | CT' })
-  @IsNotEmpty()
-  @IsString()
-  active: string;
 
   @ApiPropertyOptional({ example: 'Hanoi, Vietnam' })
   @IsOptional()
@@ -76,7 +88,24 @@ export class CreateStudentProfileDto {
   referrer?: string;
 }
 
-export class CreateStudentDto {
+class CreateEnrollmentDto {
+  @ApiProperty({ example: 'TN', description: 'TN | CT' })
+  @IsNotEmpty()
+  @IsString()
+  studentStatus: string;
+
+  @ApiProperty({ example: 'Lớp 6' })
+  @IsString()
+  @IsNotEmpty()
+  grade: string;
+
+  @ApiProperty({ example: "3" })
+  @IsNumberString()
+  @IsNotEmpty()
+  assignedTeacherId: number;
+}
+
+class CreateUserDto {
   @ApiProperty({
     example: 'học viên A',
     description: 'Họ và tên học viên',
@@ -100,36 +129,47 @@ export class CreateStudentDto {
   @IsNotEmpty()
   @IsEmail({}, { message: 'Email không đúng định dạng' })
   email: string;
+}
+
+export class CreateStudentDto {
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => CreateUserDto)
+  student: CreateUserDto;
 
   @ApiProperty()
   @ValidateNested()
-  @Type(() => CreateStudentProfileDto)
-  studentProfile: CreateStudentProfileDto;
+  @Type(() => CreateProfileDto)
+  profile: CreateProfileDto;
+
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => CreateEnrollmentDto)
+  enrollment: CreateEnrollmentDto;
 }
 
-class UpdateStudentProfileDto extends PartialType(CreateStudentProfileDto) {}
+class UpdateProfileDto extends PartialType(CreateProfileDto) {}
+class UpdateUserDto extends PartialType(CreateUserDto) {}
+class UpdateEnrollmentDto extends PartialType(CreateEnrollmentDto) {}
 
 export class UpdateStudentDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  username?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @ValidateNested()
-  @Type(() => UpdateStudentProfileDto)
-  studentProfile?: UpdateStudentProfileDto;
+  @IsOptional()
+  @Type(() => UpdateUserDto)
+  student?: UpdateUserDto;
+
+  @ApiProperty()
+  @ValidateNested()
+  @IsOptional()
+  @Type(() => UpdateProfileDto)
+  profile?: UpdateProfileDto;
+
+  @ApiProperty()
+  @ValidateNested()
+  @IsOptional()
+  @Type(() => UpdateEnrollmentDto)
+  enrollment?: UpdateEnrollmentDto;
 }
 
 //DTO điểm của học sinh
@@ -234,23 +274,23 @@ export class QueryStudentTrialDto extends factoryQuerySpecificationDto<FilterStu
 ) {}
 
 export class CreateFeedbackTrialDto {
-  @ApiProperty({example : 4})
+  @ApiProperty({ example: 4 })
   @IsInt()
   @IsNotEmpty()
   enrollmentId: number;
 
-  @ApiProperty({example : 1})
+  @ApiProperty({ example: 1 })
   @IsInt()
   @Min(1)
   @Max(4)
-  sessionNumber: number; 
+  sessionNumber: number;
 
-  @ApiProperty({example : "2026-01-06"})
+  @ApiProperty({ example: '2026-01-06' })
   @IsDateString()
-  learningDate: string; 
+  learningDate: string;
 
-  @ApiProperty({example : "om lanh rat nang"})
+  @ApiProperty({ example: 'om lanh rat nang' })
   @IsString()
   @IsNotEmpty()
-  comment : string
+  comment: string;
 }

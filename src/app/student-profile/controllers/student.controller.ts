@@ -20,6 +20,7 @@ import {
   CreateStudentDto,
   FilterScoreStudentDto,
   QueryLeaveRequestDto,
+  QueryStudentDto,
   QueryStudentTrialDto,
   UpdateScoreStudentDto,
   UpdateStudentDto,
@@ -32,20 +33,42 @@ import { ApiOperation } from '@nestjs/swagger';
 @Controller('admin/students')
 export class AdminStudentController {
   constructor(private readonly adminStudentService: AdminStudentService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Lấy tất cả học sinh năm học hiện tại ' })
+  async findAll(@UserAuth() user, @Query() query: QueryStudentDto) {
+    return this.adminStudentService.getAllStudent(user, query);
+  }
+
+  @Get(':enrollmentId')
+  @ApiOperation({ summary: 'Lấy thông tin học sinh theo id' })
+  async getStudentById(
+    @UserAuth() user: User,
+    @Param('enrollmentId', ParseIntPipe) enrollmentId: number,
+  ) {
+    return this.adminStudentService.getStudentById(user, enrollmentId);
+  }
+
   @Post()
   @ApiOperation({ summary: 'Tạo học sinh mới' })
   async create(@UserAuth() user: User, @Body() dto: CreateStudentDto) {
     return await this.adminStudentService.createStudent(user, dto);
   }
 
-  @Put(':id')
+  @Put(':enrollmentId')
   @ApiOperation({ summary: 'Cập nhật thông tin học sinh' })
   async update(
     @UserAuth() user: User,
     @Body() dto: UpdateStudentDto,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('enrollmentId', ParseIntPipe) enrollmentId: number,
   ) {
-    return await this.adminStudentService.updateStudent(user, dto, id);
+    return await this.adminStudentService.updateStudent(user, dto, enrollmentId);
+  }
+
+  @Delete(":enrollmentId")
+  @ApiOperation({summary : "Xóa học viên"})
+  async delete(@UserAuth() user : User, @Param("enrollmentId", ParseIntPipe) enrollmentId : number){
+    return this.adminStudentService.deleteStudent(user, enrollmentId)
   }
 
   @Get('/scores')
@@ -113,19 +136,23 @@ export class AdminStudentController {
   }
 
   @Post('trial-feedback')
-  @ApiOperation({ summary : "Tạo nhận xét học sinh học trải nghiệm"})
+  @ApiOperation({ summary: 'Tạo nhận xét học sinh học trải nghiệm' })
   async createTrialFeedback(
-    @UserAuth() user : User,
-    @Body() body : CreateFeedbackTrialDto
+    @UserAuth() user: User,
+    @Body() body: CreateFeedbackTrialDto,
   ) {
-    return await this.adminStudentService.createFeedbackTrial(user, body)
+    return await this.adminStudentService.createFeedbackTrial(user, body);
   }
 
   @Put('trial-student/:enrollmentId')
-  @ApiOperation({summary : "Chuyển học viên trải nghiệm sang chính thức "})
-  async updateTrialStudent(@UserAuth() user : User, @Param('enrollmentId', ParseIntPipe) enrollmentId : number){
-    return await this.adminStudentService.updateTrialStudent(user, enrollmentId)
-
-
+  @ApiOperation({ summary: 'Chuyển học viên trải nghiệm sang chính thức ' })
+  async updateTrialStudent(
+    @UserAuth() user: User,
+    @Param('enrollmentId', ParseIntPipe) enrollmentId: number,
+  ) {
+    return await this.adminStudentService.updateTrialStudent(
+      user,
+      enrollmentId,
+    );
   }
 }

@@ -11,9 +11,6 @@ export class StudentProfileEntity extends BaseEntity {
   code: string;
 
   @Column({ type: 'text', nullable: true })
-  grade: string;
-
-  @Column({ type: 'text', nullable: true })
   school: string;
 
   @Column({ type: 'text', nullable: true })
@@ -21,9 +18,6 @@ export class StudentProfileEntity extends BaseEntity {
 
   @Column({ type: 'date', nullable: true })
   dob: Date;
-
-  @Column({ type: 'text', nullable: true, default : "TN" })
-  active : string
 
   @Column({ type: 'text', nullable: true })
   address: string;
@@ -40,7 +34,7 @@ export class StudentProfileEntity extends BaseEntity {
   @Column({ name: 'mother_phone', nullable: true })
   motherPhone: string;
 
-  @Column({nullable : true})
+  @Column({ nullable: true })
   referrer: string;
 
   @OneToOne(() => UserEntity, (user) => user.studentProfile, {
