@@ -11,9 +11,7 @@ import {
 } from 'typeorm';
 import {
   CreateFeedbackTrialDto,
-  CreateLeaveRequestDto,
   CreateStudentDto,
-  QueryLeaveRequestDto,
   QueryStudentDto,
   QueryStudentTrialDto,
   UpdateScoreStudentDto,
@@ -288,97 +286,6 @@ export class AdminStudentService {
     return { id: scoreStudent.id };
   }
 
-  async getLeaveRequests(user: User, params: QueryLeaveRequestDto) {
-    const currentYear = await this.repoAcademicYear.findOne({
-      where: { isCurrent: true },
-    });
-
-    if (!currentYear) {
-      throw new NotFoundException('Năm học hiện tại không tồn tại');
-    }
-
-    const query = this.repoLeaveRequest
-      .createQueryBuilder('lr')
-      .leftJoin('lr.user', 'student')
-      .leftJoin(
-        'student.enrollments',
-        'enrollments',
-        'enrollments.academicYearId = :yearId',
-        { yearId: currentYear.id },
-      )
-      .leftJoin('student.studentProfile', 'profile')
-      .select([
-        'lr.id AS id',
-        'lr.date AS date',
-        'lr.reason AS reason',
-        'lr.type AS type',
-        'student.id AS student_id',
-        'student.username AS student_username',
-        'enrollments.grade AS grade',
-      ])
-      .where('lr.type = :type', { type: LeaveType.STUDENT_LEAVE })
-      .andWhere('lr.status = :status', { status: Status.ACTIVE });
-
-    this.setSearch(query, params);
-
-    const { filter } = params;
-    if (filter && filter.startDate && filter.endDate) {
-      const { startDate, endDate } = filter;
-      query.andWhere('lr.date BETWEEN :startDate AND :endDate', {
-        startDate,
-        endDate,
-      });
-    }
-
-    return await query.getRawMany();
-  }
-
-  async getListStudents(user: User) {
-    return await this.repoUser
-      .createQueryBuilder('u')
-      .leftJoin('u.studentProfile', 's')
-      .select(['u.id', 'u.username', 's.grade', 's.code'])
-      .where('u.role = :role', { role: 'Student' })
-      .andWhere('u.status = :status', { status: Status.ACTIVE })
-      .orderBy(
-        `CAST(regexp_replace(s.grade, '\\D', '', 'g') AS INTEGER)`,
-        'ASC',
-      )
-      .getRawMany();
-  }
-
-  async createLeaveRequest(user: User, dto: CreateLeaveRequestDto) {
-    const { userId, date, reason } = dto;
-    const student = await this.repoUser.findOne({
-      where: { id: userId, role: 'Student' },
-    });
-    if (!student) {
-      throw new NotFoundException('Học sinh không tồn tại');
-    }
-    const leaveRequest = this.repoLeaveRequest.create({
-      userId,
-      date,
-      reason,
-      type: LeaveType.STUDENT_LEAVE,
-      createdById: user.id,
-    });
-
-    await this.repoLeaveRequest.save(leaveRequest);
-    return;
-  }
-
-  async deleteLeaveRequest(user: User, id: number) {
-    const leaveRequest = await this.repoLeaveRequest.findOne({ where: { id } });
-    if (!leaveRequest) {
-      throw new NotFoundException('Đơn xin nghỉ học không tồn tại');
-    }
-    const newRecord = this.repoLeaveRequest.merge(leaveRequest, {
-      status: Status.DELETED,
-      updatedById: user.id,
-    });
-    await this.repoLeaveRequest.save(newRecord);
-    return;
-  }
 
   async getListStudentTrial(user: User, params: QueryStudentTrialDto) {
     const currentYear = await this.repoAcademicYear.findOne({

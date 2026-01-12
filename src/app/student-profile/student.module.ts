@@ -10,6 +10,8 @@ import { WeeklyFeedbackEntity } from './entities/weekly-feedback.entity';
 import { AdminStudentController } from './controllers/student.controller';
 import { AdminStudentService } from './services/student.service';
 import { UserEntity } from '../user/entities/user.entity';
+import { StudentLeaveController } from './controllers/student-leave.controller';
+import { StudentLeaveService } from './services/student-leave.service';
 
 @Module({
   imports: [
@@ -24,8 +26,8 @@ import { UserEntity } from '../user/entities/user.entity';
       UserEntity
     ]),
   ],
-  controllers: [AdminStudentController],
-  providers: [AdminStudentService],
+  controllers: [AdminStudentController, StudentLeaveController],
+  providers: [AdminStudentService, StudentLeaveService],
   exports: [],
 })
 export class StudentModule {}
