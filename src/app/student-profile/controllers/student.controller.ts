@@ -17,10 +17,8 @@ import { User } from 'src/auth/interfaces/user.class';
 import {
   CreateFeedbackTrialDto,
   CreateStudentDto,
-  FilterScoreStudentDto,
   QueryStudentDto,
   QueryStudentTrialDto,
-  UpdateScoreStudentDto,
   UpdateStudentDto,
 } from '../dtos/student.dto';
 import { ApiTagAndBearer } from 'src/base/swagger/swagger.decorator';
@@ -74,27 +72,7 @@ export class AdminStudentController {
     @Param('enrollmentId', ParseIntPipe) enrollmentId: number,
   ) {
     return this.adminStudentService.deleteStudent(user, enrollmentId);
-  }
-
-  @Get('/scores')
-  @ApiOperation({ summary: 'Lấy danh sách điểm học sinh theo kỳ và lớp' })
-  async getListStudent(
-    @UserAuth() user: User,
-    @Query() filter: FilterScoreStudentDto,
-  ) {
-    const { term, grade } = filter;
-    return await this.adminStudentService.getListStudentScore(term, grade);
-  }
-
-  @Put('/scores/:id')
-  @ApiOperation({ summary: 'Cập nhật điểm học sinh' })
-  async updateScore(
-    @UserAuth() user: User,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() scores: UpdateScoreStudentDto,
-  ) {
-    return await this.adminStudentService.updateStudentScores(user, id, scores);
-  }
+  }ß
 
   @Get('list-trial')
   @ApiOperation({

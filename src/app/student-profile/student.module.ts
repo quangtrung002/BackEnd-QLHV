@@ -12,6 +12,8 @@ import { AdminStudentService } from './services/student.service';
 import { UserEntity } from '../user/entities/user.entity';
 import { StudentLeaveController } from './controllers/student-leave.controller';
 import { StudentLeaveService } from './services/student-leave.service';
+import { StudentScoreController } from './controllers/student-score.controller';
+import { StudentScoreService } from './services/student-score.service';
 
 @Module({
   imports: [
@@ -23,11 +25,15 @@ import { StudentLeaveService } from './services/student-leave.service';
       StudentProfileEntity,
       TrialFeedbackEntity,
       WeeklyFeedbackEntity,
-      UserEntity
+      UserEntity,
     ]),
   ],
-  controllers: [AdminStudentController, StudentLeaveController],
-  providers: [AdminStudentService, StudentLeaveService],
+  controllers: [
+    AdminStudentController,
+    StudentLeaveController,
+    StudentScoreController,
+  ],
+  providers: [AdminStudentService, StudentLeaveService, StudentScoreService],
   exports: [],
 })
 export class StudentModule {}

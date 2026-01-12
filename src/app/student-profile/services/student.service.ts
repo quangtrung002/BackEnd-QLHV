@@ -14,7 +14,6 @@ import {
   CreateStudentDto,
   QueryStudentDto,
   QueryStudentTrialDto,
-  UpdateScoreStudentDto,
   UpdateStudentDto,
 } from '../dtos/student.dto';
 import {
@@ -221,70 +220,6 @@ export class AdminStudentService {
     return;
   }
 
-  async getListStudentScore(term: string, grade: string) {
-    const currentYear = await this.repoAcademicYear.findOne({
-      where: { isCurrent: true },
-    });
-
-    if (!currentYear) {
-      throw new NotFoundException('Năm học hiện tại không tồn tại');
-    }
-
-    let query = this.repoEnrollment
-      .createQueryBuilder('enrollments')
-      .leftJoinAndSelect('enrollments.student', 'student')
-      .leftJoinAndSelect('enrollments.scores', 'score', 'score.term = :term', {
-        term,
-      })
-      .where('enrollments.academicYearId = :yearId', { yearId: currentYear.id })
-      .andWhere('student.role = :role', { role: 'Student' });
-
-    if (grade && grade.trim() !== '' && grade !== 'Tất cả') {
-      query = query.andWhere('enrollments.grade = :grade', { grade });
-    }
-
-    const data = await query.getMany();
-    const students = data.map((item, idx) => {
-      const scoreRecord =
-        item.scores && item.scores.length > 0 ? item.scores[0] : null;
-      return {
-        studentId: item.student.id,
-        username: item.student.username,
-        grade: item.grade,
-        mid: scoreRecord.midScore,
-        final: scoreRecord.finalScore,
-        gita: scoreRecord.gitaScore,
-        enrollmentId: item.id,
-      };
-    });
-
-    return students;
-  }
-
-  async updateStudentScores(
-    user: User,
-    enrollmentId: number,
-    scores: UpdateScoreStudentDto,
-  ) {
-    const scoreStudent = await this.repoScore.findOne({
-      where: { enrollmentId },
-    });
-
-    if (!scoreStudent) {
-      throw new NotFoundException('Bảng điểm của học sinh không tồn tại');
-    }
-
-    Object.assign(scoreStudent, {
-      midScore: scores.mid_score ?? scoreStudent.midScore,
-      gitaScore: scores.gita_score ?? scoreStudent.gitaScore,
-      finalScore: scores.final_score ?? scoreStudent.finalScore,
-      updatedById: user.id,
-    });
-
-    await this.repoScore.save(scoreStudent);
-
-    return { id: scoreStudent.id };
-  }
 
 
   async getListStudentTrial(user: User, params: QueryStudentTrialDto) {
