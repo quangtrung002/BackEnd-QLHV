@@ -12,13 +12,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AdminStudentService } from '../services/student.service';
-import { SkipAuth, UserAuth } from 'src/auth/decorator/jwt.decorator';
+import { UserAuth } from 'src/auth/decorator/jwt.decorator';
 import { User } from 'src/auth/interfaces/user.class';
 import {
-  CreateFeedbackTrialDto,
   CreateStudentDto,
   QueryStudentDto,
-  QueryStudentTrialDto,
   UpdateStudentDto,
 } from '../dtos/student.dto';
 import { ApiTagAndBearer } from 'src/base/swagger/swagger.decorator';
@@ -72,37 +70,6 @@ export class AdminStudentController {
     @Param('enrollmentId', ParseIntPipe) enrollmentId: number,
   ) {
     return this.adminStudentService.deleteStudent(user, enrollmentId);
-  }ß
-
-  @Get('list-trial')
-  @ApiOperation({
-    summary: 'Lấy danh sách học sinh học trải nghiệm và nhận xét của giáo viên',
-  })
-  async getListStudentTrial(
-    @UserAuth() user: User,
-    @Query() query: QueryStudentTrialDto,
-  ) {
-    return await this.adminStudentService.getListStudentTrial(user, query);
   }
-
-  @Post('trial-feedback')
-  @ApiOperation({ summary: 'Tạo nhận xét học sinh học trải nghiệm' })
-  async createTrialFeedback(
-    @UserAuth() user: User,
-    @Body() body: CreateFeedbackTrialDto,
-  ) {
-    return await this.adminStudentService.createFeedbackTrial(user, body);
-  }
-
-  @Put('trial-student/:enrollmentId')
-  @ApiOperation({ summary: 'Chuyển học viên trải nghiệm sang chính thức ' })
-  async updateTrialStudent(
-    @UserAuth() user: User,
-    @Param('enrollmentId', ParseIntPipe) enrollmentId: number,
-  ) {
-    return await this.adminStudentService.updateTrialStudent(
-      user,
-      enrollmentId,
-    );
-  }
+  ß;
 }

@@ -14,6 +14,8 @@ import { StudentLeaveController } from './controllers/student-leave.controller';
 import { StudentLeaveService } from './services/student-leave.service';
 import { StudentScoreController } from './controllers/student-score.controller';
 import { StudentScoreService } from './services/student-score.service';
+import { StudentTrialController } from './controllers/student-trial.controller';
+import { StudentTrialService } from './services/student-trial.service';
 
 @Module({
   imports: [
@@ -32,8 +34,14 @@ import { StudentScoreService } from './services/student-score.service';
     AdminStudentController,
     StudentLeaveController,
     StudentScoreController,
+    StudentTrialController,
   ],
-  providers: [AdminStudentService, StudentLeaveService, StudentScoreService],
+  providers: [
+    AdminStudentService,
+    StudentLeaveService,
+    StudentScoreService,
+    StudentTrialService,
+  ],
   exports: [],
 })
 export class StudentModule {}
