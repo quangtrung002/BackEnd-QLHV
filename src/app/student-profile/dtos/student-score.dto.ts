@@ -23,6 +23,11 @@ export class FilterScoreStudentDto {
 }
 
 export class UpdateScoreStudentDto {
+  @ApiPropertyOptional({ description: 'Học kì', example: '1_2025_2026' })
+  @IsOptional()
+  @IsString()
+  term?: string;
+
   @ApiPropertyOptional({
     description: 'Điểm giữa kỳ',
     example: 7.5,

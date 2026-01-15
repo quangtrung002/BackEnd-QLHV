@@ -6,6 +6,7 @@ import { UpdateScoreStudentDto } from '../dtos/student-score.dto';
 import { User } from 'src/auth/interfaces/user.class';
 import { EnrollmentEntity } from '../entities/enrollment.entity';
 import { AcademicYearEntity } from '../entities/academic-year.entity';
+import { Status } from 'src/base/utils/status';
 
 export class StudentScoreService {
   constructor(
@@ -27,33 +28,34 @@ export class StudentScoreService {
     }
 
     let query = this.repoEnrollment
-      .createQueryBuilder('enrollments')
-      .leftJoinAndSelect('enrollments.student', 'student')
-      .leftJoinAndSelect('enrollments.scores', 'score')
-      .where('enrollments.academicYearId = :yearId', { yearId: currentYear.id })
-      .andWhere('score.term = :term', { term })
-      .andWhere('student.role = :role', { role: 'Student' });
-
+      .createQueryBuilder('e')
+      .leftJoinAndSelect('e.student', 's')
+      .leftJoinAndSelect('e.scores', 'sc', 'sc.term = :term', { term })
+      .where('e.academicYearId = :yearId', { yearId: currentYear.id })
+      .andWhere('s.role = :role', { role: 'Student' })
+      .andWhere('e.studentStatus = :studentStatus', {
+        studentStatus: 'CT',
+      })
+      .andWhere('e.status = :status', { status: Status.ACTIVE });
     if (grade && grade.trim() !== '' && grade !== 'Tất cả') {
-      query = query.andWhere('enrollments.grade = :grade', { grade });
+      query = query.andWhere('e.grade = :grade', { grade });
     }
 
-    const data = await query.getMany();
-    const students = data.map((item, idx) => {
-      const scoreRecord =
-        item.scores && item.scores.length > 0 ? item.scores[0] : null;
+    const enrollments = await query.getMany();
+
+    return enrollments.map((e) => {
+      const score = e.scores?.[0];
+
       return {
-        studentId: item.student.id,
-        username: item.student.username,
-        grade: item.grade,
-        mid: scoreRecord?.midScore,
-        final: scoreRecord?.finalScore,
-        gita: scoreRecord?.gitaScore,
-        enrollmentId: item.id,
+        studentId: e.student.id,
+        username: e.student.username,
+        grade: e.grade,
+        mid: score?.midScore ?? 0,
+        gita: score?.gitaScore ?? 0,
+        final: score?.finalScore ?? 0,
+        enrollmentId: e.id,
       };
     });
-
-    return students;
   }
 
   async updateStudentScores(
@@ -61,20 +63,28 @@ export class StudentScoreService {
     enrollmentId: number,
     scores: UpdateScoreStudentDto,
   ) {
-    const scoreStudent = await this.repoScore.findOne({
-      where: { enrollmentId },
+    let scoreStudent = await this.repoScore.findOne({
+      where: {
+        enrollmentId,
+        term: scores.term,
+      },
     });
 
     if (!scoreStudent) {
-      throw new NotFoundException('Bảng điểm của học sinh không tồn tại');
+      scoreStudent = this.repoScore.create({
+        enrollmentId,
+        term: scores.term,
+        midScore: scores.mid_score ?? 0,
+        gitaScore: scores.gita_score ?? 0,
+        finalScore: scores.final_score ?? 0,
+        createdById: user.id,
+      });
+    } else {
+      scoreStudent.midScore = scores.mid_score ?? scoreStudent.midScore;
+      scoreStudent.gitaScore = scores.gita_score ?? scoreStudent.gitaScore;
+      scoreStudent.finalScore = scores.final_score ?? scoreStudent.finalScore;
+      scoreStudent.updatedById = user.id;
     }
-
-    Object.assign(scoreStudent, {
-      midScore: scores.mid_score ?? scoreStudent.midScore,
-      gitaScore: scores.gita_score ?? scoreStudent.gitaScore,
-      finalScore: scores.final_score ?? scoreStudent.finalScore,
-      updatedById: user.id,
-    });
 
     await this.repoScore.save(scoreStudent);
 
