@@ -41,11 +41,14 @@ export class StudentLeaveService {
         'student.username',
         'profile.code',
         'enrollment.id',
-        'enrollment.studentId'
+        'enrollment.studentId',
       ])
       .where('enrollment.academicYearId = :yearId', { yearId: currentYear.id })
       .andWhere('enrollment.status = :status', { status: Status.ACTIVE })
       .andWhere('student.role = :role', { role: 'Student' })
+      .andWhere('enrollment.studentStatus = :studentStatus', {
+        studentStatus: 'CT',
+      })
       .orderBy(
         `CAST(regexp_replace(enrollment.grade, '\\D', '', 'g') AS INTEGER)`,
         'ASC',
@@ -54,7 +57,7 @@ export class StudentLeaveService {
 
     return students.map((student) => {
       return {
-        studentId : student.studentId,
+        studentId: student.studentId,
         enrollmentId: student.id,
         grade: student.grade,
         username: student.student.username,

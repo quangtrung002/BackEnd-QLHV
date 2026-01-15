@@ -16,6 +16,8 @@ import { StudentScoreController } from './controllers/student-score.controller';
 import { StudentScoreService } from './services/student-score.service';
 import { StudentTrialController } from './controllers/student-trial.controller';
 import { StudentTrialService } from './services/student-trial.service';
+import { StudentOfficialController } from './controllers/student-official.controller';
+import { StudentOfficialService } from './services/student-official.service';
 
 @Module({
   imports: [
@@ -35,12 +37,14 @@ import { StudentTrialService } from './services/student-trial.service';
     StudentLeaveController,
     StudentScoreController,
     StudentTrialController,
+    StudentOfficialController,
   ],
   providers: [
     AdminStudentService,
     StudentLeaveService,
     StudentScoreService,
     StudentTrialService,
+    StudentOfficialService,
   ],
   exports: [],
 })
