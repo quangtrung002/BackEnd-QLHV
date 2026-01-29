@@ -6,31 +6,21 @@ import { Repository } from 'typeorm';
 
 const data = [
   {
-    settingKey: 'mobileVersion',
-    settingValue: 'v1.0.0',
+    settingKey: 'currentYear',
+    settingValue: '2025-2026',
     dataType: SettingDataType.STRING,
   },
   {
-    settingKey: 'appContactInfo',
-    settingValue: {
-      phone: '111111',
-      email: 'contact@gmail.com',
-      address: 'Ha Noi',
-      lat: '1',
-      long: '1',
-    },
+    settingKey: 'shifts',
+    settingValue: [
+      {
+        name: '18:15-19:45',
+      },
+      {
+        name: '20:00-21:30',
+      },
+    ],
     dataType: SettingDataType.JSON,
-  },
-  {
-    settingKey: 'term',
-    settingValue:
-      'Chính sách quyền riêng tư này bao gồm thông tin chúng tôi thu thập về bạn khi bạn sử dụng các sản phẩm hoặc dịch vụ của chúng tôi hoặc tương tác với chúng tôi (ví dụ: bằng cách tham dự cơ sở hoặc sự kiện của chúng tôi hoặc bằng cách liên lạc với chúng tôi), trừ khi một chính sách khác được hiển thị.',
-    dataType: SettingDataType.STRING,
-  },
-  {
-    settingKey: 'policy',
-    settingValue: 'policy',
-    dataType: SettingDataType.STRING,
   },
 ];
 
