@@ -6,11 +6,9 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  Unique,
 } from 'typeorm';
 
 @Entity('teacher_attendance_logs')
-@Unique(['teacherId', 'date', 'shiftName'])
 export class TeacherAttendanceLogEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -18,14 +16,17 @@ export class TeacherAttendanceLogEntity extends BaseEntity {
   @Column({ name: 'teacher_id' })
   teacherId: number;
 
-  @Column({ type: 'date' })
-  date: string;
+  @Column()
+  month: number;
+
+  @Column()
+  year: number;
 
   @Column({ name: 'shift_name' })
   shiftName: string;
 
-  @Column({ name: 'is_present', default: true })
-  isPresent: boolean;
+  @Column({ type: 'json', default: [] })
+  days: number[];
 
   @ManyToOne(() => UserEntity, (user) => user.attendanceLogs, {
     onDelete: 'CASCADE',
